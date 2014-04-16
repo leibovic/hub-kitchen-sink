@@ -19,7 +19,6 @@ const DATASET_ID = "kitchen.sink.dataset@margaretleibovic.com";
  * - empty views
  * - auth views
  * - filters
- * - refresh callback
  * - install/uninstall callback
  */
 var gTestPanels = [
@@ -30,7 +29,10 @@ var gTestPanels = [
         title: "Test List",
         views: [{
           type: Home.panels.View.LIST,
-          dataset: DATASET_ID
+          dataset: DATASET_ID,
+          onrefresh: function() {
+            refreshDataset();
+          }
         }]
       };
     }
@@ -42,7 +44,10 @@ var gTestPanels = [
         title: "Test Grid",
         views: [{
           type: Home.panels.View.GRID,
-          dataset: DATASET_ID
+          dataset: DATASET_ID,
+          onrefresh: function() {
+            refreshDataset();
+          }
         }]
       };
     }
