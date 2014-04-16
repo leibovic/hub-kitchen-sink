@@ -9,40 +9,66 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const PANEL_ID_LIST = "kitchen.sink.list@margaretleibovic.com";
 const PANEL_ID_GRID = "kitchen.sink.grid@margaretleibovic.com";
+const PANEL_ID_EMPTY = "kitchen.sink.empty@margaretleibovic.com";
 
 const DATASET_ID = "kitchen.sink.dataset@margaretleibovic.com";
+
+XPCOMUtils.defineLazyGetter(this, "NativeWindow", function() {
+  let win = Services.wm.getMostRecentWindow("navigator:browser");
+  return win.NativeWindow;
+});
 
 /**
  * An array of test panels that test various APIs.
  *
  * TODO:
- * - empty views
  * - auth views
  * - filters
  * - refresh callback
- * - install/uninstall callback
  */
 var gTestPanels = [
   { 
     id: PANEL_ID_LIST,
-    optionsCallback: function listOptionsCallback() {
+    optionsCallback: function () {
       return {
         title: "Test List",
         views: [{
           type: Home.panels.View.LIST,
           dataset: DATASET_ID
-        }]
+        }],
+        oninstall: function () {
+          NativeWindow.toast.show("List panel oninstall callback fired", "short");
+        },
+        onuninstall: function () {
+          NativeWindow.toast.show("List panel onuninstall callback fired", "short");
+        }
       };
     }
   },
   { 
     id: PANEL_ID_GRID,
-    optionsCallback: function gridOptionsCallback() {
+    optionsCallback: function () {
       return {
         title: "Test Grid",
         views: [{
           type: Home.panels.View.GRID,
           dataset: DATASET_ID
+        }]
+      };
+    }
+  },
+  {
+    id: PANEL_ID_EMPTY,
+    optionsCallback: function () {
+      return {
+        title: "Test Empty",
+        views: [{
+          type: Home.panels.View.LIST,
+          dataset: "does.not.exist",
+          empty: {
+            text: "This is some test emtpy text",
+            imageUrl: ""
+          }
         }]
       };
     }
