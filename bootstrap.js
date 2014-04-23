@@ -114,6 +114,44 @@ var gTestItems = [
   {
     url: "http://example.com/7",
     description: "Example with short description"
+  },
+  {
+    url: "http://example.com/1",
+    title: "First Example",
+    description: "This is an example",
+    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
+  },
+  {
+    url: "http://example.com/2",
+    title: "Second Example",
+    description: "This is an example that has a long description so that we can test what happens when the description is very long",
+    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
+  },
+  {
+    url: "http://example.com/3",
+    title: "Example with a long title so that we can test what happens when the title is long",
+    description: "This is an example that has a long description so that we can test what happens when the description is very long",
+    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
+  },
+  {
+    url: "http://example.com/4",
+    title: "Example with short title",
+    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
+  },
+  {
+    url: "http://example.com/5",
+    title: "Example with a long title so that we can test what happens when the title is long",
+    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
+  },
+  {
+    url: "http://example.com/6",
+    description: "This is an example that has a long description so that we can test what happens when the description is very long",
+    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
+  },
+  {
+    url: "http://example.com/7",
+    description: "Example with short description",
+    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
   }
 ];
 
