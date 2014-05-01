@@ -9,9 +9,11 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const PANEL_ID_LIST = "kitchen.sink.list@margaretleibovic.com";
 const PANEL_ID_GRID = "kitchen.sink.grid@margaretleibovic.com";
+const PANEL_ID_HUGE = "kitchen.sink.huge@margaretleibovic.com";
 const PANEL_ID_EMPTY = "kitchen.sink.empty@margaretleibovic.com";
 
 const DATASET_ID = "kitchen.sink.dataset@margaretleibovic.com";
+const DATASET_HUGE_ID = "kitchen.sink.dataset.huge@margaretleibovic.com";
 
 XPCOMUtils.defineLazyGetter(this, "NativeWindow", function() {
   let win = Services.wm.getMostRecentWindow("navigator:browser");
@@ -58,6 +60,18 @@ var gTestPanels = [
     }
   },
   {
+    id: PANEL_ID_HUGE,
+    optionsCallback: function () {
+      return {
+        title: "Huge List",
+        views: [{
+          type: Home.panels.View.LIST,
+          dataset: DATASET_HUGE_ID
+        }]
+      };
+    }
+  },
+  {
     id: PANEL_ID_EMPTY,
     optionsCallback: function () {
       return {
@@ -66,7 +80,8 @@ var gTestPanels = [
           type: Home.panels.View.LIST,
           dataset: "does.not.exist",
           empty: {
-            text: "This is some test emtpy text"
+            text: "This is some test emtpy text",
+            image_url: ""
           }
         }]
       };
@@ -154,29 +169,47 @@ var gTestItems = [
   },
   {
     url: "http://example.com/15",
+    title: "Empty string image_url",
     image_url: ""
   },
   {
     url: "http://example.com/16",
+    title: "null image_url",
     image_url: null
   },
   {
     url: "http://example.com/17",
+    title: "undefined image_url",
     image_url: undefined
   }
 ];
 
-function refreshDataset() {
+var gTestItemsHuge = [];
+for (let i = 0; i < 100000; i++) {
+  gTestItemsHuge.push({
+    url: "http://example.com/" + i,
+    title: "Test item #" + i
+  })
+}
+
+function refreshDatasets() {
   Task.spawn(function() {
     let storage = HomeProvider.getStorage(DATASET_ID);
     yield storage.deleteAll();
     yield storage.save(gTestItems);
-  }).then(null, e => Cu.reportError("Error refreshing dataset " + DATASET_ID + ": " + e));
+
+    let storageHuge = HomeProvider.getStorage(DATASET_HUGE_ID);
+    yield storageHuge.deleteAll();
+    yield storageHuge.save(gTestItemsHuge);
+  }).then(null, e => Cu.reportError("Error refreshing datasets: " + e));
 }
 
-function deleteDataset() {
+function deleteDatasets() {
   Task.spawn(function() {
     let storage = HomeProvider.getStorage(DATASET_ID);
+    yield storage.deleteAll();
+
+    let storage = HomeProvider.getStorage(DATASET_HUGE_ID);
     yield storage.deleteAll();
   }).then(null, e => Cu.reportError("Error deleting data from HomeProvider: " + e));
 }
@@ -196,7 +229,7 @@ function startup(data, reason) {
         Home.panels.install(panel.id);
       });
 
-      HomeProvider.requestSync(DATASET_ID, refreshDataset);
+      HomeProvider.requestSync(DATASET_ID, refreshDatasets);
       break;
 
     case ADDON_UPGRADE:
@@ -208,7 +241,7 @@ function startup(data, reason) {
   }
 
   // Update data once every hour.
-  HomeProvider.addPeriodicSync(DATASET_ID, 3600, refreshDataset);
+  HomeProvider.addPeriodicSync(DATASET_ID, 3600, refreshDatasets);
 }
 
 function shutdown(data, reason) {
@@ -216,7 +249,7 @@ function shutdown(data, reason) {
     gTestPanels.forEach(function (panel) {
       Home.panels.uninstall(panel.id);
     });
-    deleteDataset();
+    deleteDatasets();
   }
 
   gTestPanels.forEach(function (panel) {
