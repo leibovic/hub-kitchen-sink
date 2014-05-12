@@ -185,7 +185,7 @@ var gTestItems = [
 ];
 
 var gTestItemsHuge = [];
-for (let i = 0; i < 100000; i++) {
+for (let i = 0; i < 1000; i++) {
   gTestItemsHuge.push({
     url: "http://example.com/" + i,
     title: "Test item #" + i
