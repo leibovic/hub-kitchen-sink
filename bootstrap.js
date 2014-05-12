@@ -26,7 +26,6 @@ XPCOMUtils.defineLazyGetter(this, "NativeWindow", function() {
  * TODO:
  * - auth views
  * - filters
- * - refresh callback
  */
 var gTestPanels = [
   { 
@@ -43,6 +42,9 @@ var gTestPanels = [
         },
         onuninstall: function () {
           NativeWindow.toast.show("List panel onuninstall callback fired", "short");
+        },
+        onrefresh: function () {
+          refreshDataset();
         }
       };
     }
@@ -55,7 +57,10 @@ var gTestPanels = [
         views: [{
           type: Home.panels.View.GRID,
           dataset: DATASET_ID
-        }]
+        }],
+        onrefresh: function () {
+          refreshDataset();
+        }
       };
     }
   },
