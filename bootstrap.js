@@ -35,16 +35,16 @@ var gTestPanels = [
         title: "Test List",
         views: [{
           type: Home.panels.View.LIST,
-          dataset: DATASET_ID
+          dataset: DATASET_ID,
+          onrefresh: function () {
+            refreshDataset();
+          }
         }],
         oninstall: function () {
           NativeWindow.toast.show("List panel oninstall callback fired", "short");
         },
         onuninstall: function () {
           NativeWindow.toast.show("List panel onuninstall callback fired", "short");
-        },
-        onrefresh: function () {
-          refreshDataset();
         }
       };
     }
@@ -56,11 +56,11 @@ var gTestPanels = [
         title: "Test Grid",
         views: [{
           type: Home.panels.View.GRID,
-          dataset: DATASET_ID
-        }],
-        onrefresh: function () {
-          refreshDataset();
-        }
+          dataset: DATASET_ID,
+          onrefresh: function () {
+            refreshDataset();
+          }
+        }]
       };
     }
   },
@@ -197,16 +197,20 @@ for (let i = 0; i < 1000; i++) {
   })
 }
 
-function refreshDatasets() {
+function refreshDataset() {
   Task.spawn(function() {
     let storage = HomeProvider.getStorage(DATASET_ID);
     yield storage.deleteAll();
     yield storage.save(gTestItems);
+  }).then(null, e => Cu.reportError("Error refreshing dataset: " + e));
+}
 
+function refreshHugeDataset() {
+  Task.spawn(function() {
     let storageHuge = HomeProvider.getStorage(DATASET_HUGE_ID);
     yield storageHuge.deleteAll();
     yield storageHuge.save(gTestItemsHuge);
-  }).then(null, e => Cu.reportError("Error refreshing datasets: " + e));
+  }).then(null, e => Cu.reportError("Error refreshing huge dataset: " + e));
 }
 
 function deleteDatasets() {
@@ -234,7 +238,8 @@ function startup(data, reason) {
         Home.panels.install(panel.id);
       });
 
-      HomeProvider.requestSync(DATASET_ID, refreshDatasets);
+      HomeProvider.requestSync(DATASET_ID, refreshDataset);
+      HomeProvider.requestSync(DATASET_ID, refreshHugeDataset);
       break;
 
     case ADDON_UPGRADE:
@@ -246,7 +251,7 @@ function startup(data, reason) {
   }
 
   // Update data once every hour.
-  HomeProvider.addPeriodicSync(DATASET_ID, 3600, refreshDatasets);
+  HomeProvider.addPeriodicSync(DATASET_ID, 3600, refreshDataset);
 }
 
 function shutdown(data, reason) {
