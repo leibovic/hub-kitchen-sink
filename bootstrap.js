@@ -36,9 +36,7 @@ var gTestPanels = [
         views: [{
           type: Home.panels.View.LIST,
           dataset: DATASET_ID,
-          onrefresh: function () {
-            refreshDataset();
-          }
+          onrefresh: refreshDataset
         }],
         oninstall: function () {
           NativeWindow.toast.show("List panel oninstall callback fired", "short");
@@ -57,9 +55,7 @@ var gTestPanels = [
         views: [{
           type: Home.panels.View.GRID,
           dataset: DATASET_ID,
-          onrefresh: function () {
-            refreshDataset();
-          }
+          onrefresh: refreshDataset
         }]
       };
     }
@@ -71,7 +67,8 @@ var gTestPanels = [
         title: "Huge List",
         views: [{
           type: Home.panels.View.LIST,
-          dataset: DATASET_HUGE_ID
+          dataset: DATASET_HUGE_ID,
+          onrefresh: refreshHugeDataset
         }]
       };
     }
@@ -86,7 +83,7 @@ var gTestPanels = [
           dataset: "does.not.exist",
           empty: {
             text: "This is some test emtpy text",
-            image_url: ""
+            imageUrl: "http://upload.wikimedia.org/wikipedia/fr/d/df/Firefox_2013_logo.png"
           }
         }]
       };
@@ -144,7 +141,7 @@ var gTestItems = [
     url: "http://example.com/9",
     title: "Second Example",
     description: "This is an example that has a long description so that we can test what happens when the description is very long",
-    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
+    image_url: "http://www.zzilo.com/media/catalog/category/computer_science_1.jpg"
   },
   {
     url: "http://example.com/10",
@@ -155,7 +152,7 @@ var gTestItems = [
   {
     url: "http://example.com/11",
     title: "Example with short title",
-    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
+    image_url: "http://www.zzilo.com/media/catalog/category/computer_science_1.jpg"
   },
   {
     url: "http://example.com/12",
@@ -165,7 +162,7 @@ var gTestItems = [
   {
     url: "http://example.com/13",
     description: "This is an example that has a long description so that we can test what happens when the description is very long",
-    image_url: "http://static.goal.com/165000/165068_thumb.jpg"
+    image_url: "http://www.zzilo.com/media/catalog/category/computer_science_1.jpg"
   },
   {
     url: "http://example.com/14",
@@ -190,27 +187,28 @@ var gTestItems = [
 ];
 
 var gTestItemsHuge = [];
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 10000; i++) {
   gTestItemsHuge.push({
     url: "http://example.com/" + i,
     title: "Test item #" + i
-  })
+  });
 }
 
 function refreshDataset() {
   Task.spawn(function() {
     let storage = HomeProvider.getStorage(DATASET_ID);
-    yield storage.deleteAll();
-    yield storage.save(gTestItems);
+    yield storage.save(gTestItems, { replace: true });
   }).then(null, e => Cu.reportError("Error refreshing dataset: " + e));
 }
 
 function refreshHugeDataset() {
   Task.spawn(function() {
     let storageHuge = HomeProvider.getStorage(DATASET_HUGE_ID);
-    yield storageHuge.deleteAll();
-    yield storageHuge.save(gTestItemsHuge);
-  }).then(null, e => Cu.reportError("Error refreshing huge dataset: " + e));
+    yield storageHuge.save(gTestItemsHuge, { replace: true } );
+  }).then(null, e => {
+    Cu.reportError("Error refreshing huge dataset: " + e);
+    e.errors.forEach(Cu.reportError(error.message));
+  });
 }
 
 function deleteDatasets() {
